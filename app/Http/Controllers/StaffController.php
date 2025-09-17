@@ -45,4 +45,65 @@ class StaffController extends Controller
             'redirect' => route('staff.index'),
         ]);
     }
+
+    public function edit($id)
+    {
+        $edit = User::findOrFail($id);
+
+        $roles = Role::all();
+        $currentRole = $edit->roles->pluck('name')->first();
+
+        return view('pages.staff.edit', compact('edit', 'roles', 'currentRole'));
+    }
+
+    public function update(Request $request, $id)
+    {
+        $request->validate([
+            'name'  => 'required|string|max:255',
+            'email' => 'required|email|unique:users,email,' . $id,
+            'password' => 'nullable|min:6|confirmed',
+            'role'  => 'nullable|string',
+        ]);
+
+        $user = User::findOrFail($id);
+
+        $user->name  = $request->name;
+        $user->email = $request->email;
+
+        if ($request->filled('password')) {
+            $user->password = bcrypt($request->password);
+        }
+
+        $user->save();
+
+        // Agar Admin nahi hai tabhi role update kare
+        if ($request->role && !$user->hasRole('Admin')) {
+            $user->syncRoles([$request->role]);
+        }
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'User updated successfully',
+            'redirect' => route('staff.index'),
+        ]);
+    }
+
+    public function destroy($id)
+    {
+        $user = User::find($id);
+
+        if (!$user) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'User not found.'
+            ], 404);
+        }
+
+        $user->delete();
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'User deleted successfully!'
+        ]);
+    }
 }

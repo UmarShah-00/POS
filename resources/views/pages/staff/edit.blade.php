@@ -21,12 +21,11 @@
         <div class="main-content-inner">
 
             <!-- Profile/Staff Form -->
-            <form action="{{ route('staff.store') }}" method="POST" class="form-user-profile" id="staff-form">
+            <form action="{{ route('staff.update', $edit->id) }}" method="POST" class="form-user-profile" id="staff-form">
                 @csrf
-
                 <!-- Header -->
                 <div class="flex flex-wrap justify-between gap-4 items-center mb-30">
-                    <h4 class="heading">Create User</h4>
+                    <h4 class="heading">Update User</h4>
                     <button type="submit" class="tf-button text-btn-uppercase">
                         Save
                     </button>
@@ -42,7 +41,7 @@
                             <label class="text-caption-1 mb-2">
                                 Name <span class="text-primary">*</span>
                             </label>
-                            <input type="text" name="name" value="{{ old('name', $user->name ?? '') }}" required>
+                            <input type="text" name="name" value="{{ old('name', $edit->name ?? '') }}" required>
                             @error('name')
                                 <small class="text-danger">{{ $message }}</small>
                             @enderror
@@ -53,28 +52,35 @@
                             <label class="text-caption-1 mb-2">
                                 Email <span class="text-primary">*</span>
                             </label>
-                            <input type="email" name="email" value="{{ old('email', $user->email ?? '') }}" required>
+                            <input type="email" name="email" value="{{ old('email', $edit->email ?? '') }}" required>
                             @error('email')
                                 <small class="text-danger">{{ $message }}</small>
                             @enderror
                         </fieldset>
 
                         <!-- Role -->
-                        <fieldset>
-                            <label class="text-caption-1 mb-2">
-                                Role <span class="text-primary">*</span>
-                            </label>
-                            <select name="role" class="form-control" required style="height: 47px; font-size: 15px;">
-                                <option value="">-- Select Role --</option>
-                                <option value="Admin" {{ old('role', $user->role ?? '') === 'Admin' ? 'selected' : '' }}>
-                                    Admin</option>
-                                <option value="Cashier"
-                                    {{ old('role', $user->role ?? '') === 'Cashier' ? 'selected' : '' }}>Cashier</option>
-                            </select>
-                            @error('role')
-                                <small class="text-danger">{{ $message }}</small>
-                            @enderror
-                        </fieldset>
+
+                        <!-- Role -->
+                        {{-- Sirf tab show hoga jab role Admin nahi hai --}}
+                        @if ($currentRole !== 'Admin')
+                            <fieldset>
+                                <label class="text-caption-1 mb-2">
+                                    Role <span class="text-primary">*</span>
+                                </label>
+                                <select name="role" class="form-control" required style="height: 47px; font-size: 15px;">
+                                    <option value="">-- Select Role --</option>
+                                    @foreach ($roles as $role)
+                                        <option value="{{ $role->name }}"
+                                            {{ $currentRole === $role->name ? 'selected' : '' }}>
+                                            {{ $role->name }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                                @error('role')
+                                    <small class="text-danger">{{ $message }}</small>
+                                @enderror
+                            </fieldset>
+                        @endif
                     </div>
 
                     <!-- Password & Confirm Password -->
@@ -107,7 +113,6 @@
         </div>
     </div>
 @endsection
-
 <script>
     document.addEventListener("DOMContentLoaded", () => {
         const form = document.getElementById("staff-form");
@@ -116,10 +121,12 @@
             e.preventDefault();
 
             const formData = new FormData(this);
+            const action = this.getAttribute("action"); // ✅ route se action pick karega
+            const method = this.querySelector('input[name="_method"]')?.value || this.method;
 
             try {
-                const response = await fetch("{{ route('staff.store') }}", {
-                    method: "POST",
+                const response = await fetch(action, {
+                    method: method, // "PUT" ya "POST"
                     headers: {
                         "X-CSRF-TOKEN": document.querySelector('meta[name="csrf-token"]')
                             .getAttribute("content"),
@@ -128,7 +135,6 @@
                     body: formData
                 });
 
-                // Try parsing JSON safely
                 let data;
                 try {
                     data = await response.json();
@@ -136,8 +142,6 @@
                     console.error("❌ JSON Parse Error:", err);
                     throw new Error("Invalid JSON response");
                 }
-
-                console.log("✅ Response:", data);
 
                 if (response.ok && data.status === "success") {
                     Swal.fire({
@@ -147,11 +151,9 @@
                         confirmButtonColor: "#181818"
                     }).then(() => {
                         if (data.redirect) {
-                            window.location.href = data
-                                .redirect; // ✅ Redirect after OK click
+                            window.location.href = data.redirect;
                         }
                     });
-                    form.reset();
                 } else {
                     Swal.fire({
                         icon: "error",

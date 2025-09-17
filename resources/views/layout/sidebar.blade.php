@@ -34,6 +34,15 @@
                         <div class="text text-title">Staff</div>
                     </a>
                 </li>
+
+                <!-- Category -->
+                <li class="menu-item">
+                    <a href="{{ route('category.index') }}"
+                        class="menu-item-button {{ request()->routeIs('category.index') ? 'active' : '' }}">
+                        <div class="icon"><i class="icon-folders"></i></div>
+                        <div class="text text-title">Categories</div>
+                    </a>
+                </li>
             </ul>
         </div>
     </div>

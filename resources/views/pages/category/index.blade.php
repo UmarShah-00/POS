@@ -12,9 +12,9 @@
         <!-- main-content-inner -->
         <div class="main-content-inner">
             <div class="flex flex-wrap justify-between gap14 items-center">
-                <h4 class="heading">Users List</h4>
-                <a href="{{ route('staff.create') }}" class="tf-button text-btn-uppercase">
-                    Create User
+                <h4 class="heading">Categories</h4>
+                <a href="{{ route('category.create') }}" class="tf-button text-btn-uppercase">
+                    Create Category
                 </a>
             </div>
             <div class="wg-box">
@@ -61,38 +61,30 @@
                             <tr>
                                 <th class="text-title">ID</th>
                                 <th class="text-title">Name</th>
-                                <th class="text-title" style="width: 226px;">Email</th>
-                                <th class="text-title" style="width: 80px;">Role</th>
+                                <th class="text-title" style="width: 226px;">Slug</th>
+                                <th class="text-title" style="width: 80px;">Image</th>
                                 <th class="text-title">Action</th>
                             </tr>
                         </thead>
                         <tbody>
-                            @foreach ($users as $user)
-                                <tr class="tf-table-item item-row">
-                                    <td>{{ $user->id }}</td>
-                                    <td class="text-caption-1">{{ $user->name }}</td>
-                                    <td class="text-caption-1" style="width: 220px;">{{ $user->email }}</td>
-                                    <td style="width: 118px;">
-                                        <div class="box-status text-button type-completed">
-                                            {{ $user->roles->pluck('name')->implode(', ') ?: 'No Role' }}
-                                        </div>
-                                    </td>
-                                    <td class="d-flex gap8 justify-content-start">
-                                        <a href="{{ route('staff.edit', $user->id) }}" class="hover-tooltips tf-btn-small">
-                                            <i class="icon icon-edit"></i>
-                                            <span class="tooltips text-caption-1">Edit</span>
-                                        </a>
-                                        <a href="javascript:void(0);" class="hover-tooltips tf-btn-small delete-staff"
-                                            data-id="{{ $user->id }}"
-                                            @if ($user->hasRole('Admin')) style="pointer-events: none; opacity: 0.5; cursor: not-allowed;" @endif>
-                                            <i class="icon icon-trash"></i>
-                                            <span class="tooltips text-caption-1">Delete</span>
-                                        </a>
+
+                            <tr class="tf-table-item item-row">
+                                <td></td>
+                                <td class="text-caption-1"></td>
+                                <td class="text-caption-1" style="width: 220px;"></td>
+                                <td class="d-flex gap8 justify-content-start">
+                                    <a href="{{ route('category.edit') }}" class="hover-tooltips tf-btn-small">
+                                        <i class="icon icon-edit"></i>
+                                        <span class="tooltips text-caption-1">Edit</span>
+                                    </a>
+                                    <a href="javascript:void(0);" class="hover-tooltips tf-btn-small btns-trash">
+                                        <i class="icon icon-trash"></i>
+                                        <span class="tooltips text-caption-1">Delete</span>
+                                    </a>
 
 
-                                    </td>
-                                </tr>
-                            @endforeach
+                                </td>
+                            </tr>
                         </tbody>
                     </table>
 

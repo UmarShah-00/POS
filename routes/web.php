@@ -15,6 +15,7 @@ use App\Http\Controllers\Auth\ConfirmablePasswordController;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\Auth\EmailVerificationPromptController;
 use App\Http\Controllers\Auth\EmailVerificationNotificationController;
+use App\Http\Controllers\CategoryController;
 
 /*
 |--------------------------------------------------------------------------
@@ -73,6 +74,18 @@ Route::middleware('auth')->group(function () {
     Route::get('staff', [StaffController::class, 'index'])->name('staff.index');
     Route::get('staff/create', [StaffController::class, 'create'])->name('staff.create');
     Route::post('/staff/store', [StaffController::class, 'store'])->name('staff.store');
+    Route::get('/staff/edit/{id}', [StaffController::class, 'edit'])->name('staff.edit');
+    Route::post('/staff/update/{id}', [StaffController::class, 'update'])->name('staff.update');
+    Route::delete('/staff/delete/{id}', [StaffController::class, 'destroy'])->name('staff.delete');
+
+    //Category
+        //Staff
+    Route::get('category', [CategoryController::class, 'index'])->name('category.index');
+    Route::get('category/create', [CategoryController::class, 'create'])->name('category.create');
+    Route::post('/category/store', [CategoryController::class, 'store'])->name('category.store');
+    Route::get('/category/edit', [CategoryController::class, 'edit'])->name('category.edit');
+    Route::post('/category/update', [CategoryController::class, 'update'])->name('category.update');
+    Route::delete('/category/delete', [CategoryController::class, 'destroy'])->name('category.delete');
 
     // Logout
     Route::post('logout', [AuthenticatedSessionController::class, 'destroy'])->name('logout');
