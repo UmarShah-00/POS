@@ -43,6 +43,29 @@
                         <div class="text text-title">Categories</div>
                     </a>
                 </li>
+
+                <!-- Product -->
+                <li class="menu-item">
+                    <a href="{{ route('product.index') }}"
+                        class="menu-item-button {{ request()->routeIs('product.index') ? 'active' : '' }}">
+                        <div class="icon"> <i class="icon-package"></i>
+                        </div>
+                        <div class="text text-title">Products</div>
+                    </a>
+                </li>
+                <!-- Logout -->
+                <li class="menu-item">
+                    <a href="#" onclick="event.preventDefault(); document.getElementById('logout-form').submit();"
+                        class="menu-item-button">
+                        <div class="icon"><i class="icon-sign-out"></i></div>
+                        <div class="text text-title">Logout</div>
+                    </a>
+
+                    <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display: none;">
+                        @csrf
+                    </form>
+                </li>
+
             </ul>
         </div>
     </div>
