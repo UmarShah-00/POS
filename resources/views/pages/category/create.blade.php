@@ -43,42 +43,19 @@
                                 <label class="uploadfile" for="myFile">
                                     <input type="file" id="myFile" name="filename" accept="image/*">
                                     <div class="upload-btn text-button font-instrument fw-6">Choose File</div>
-                                    <div class="text-caption-1 font-instrument text-secondary">Upload file JPG, PNG</div>
+                                    <div class="text-caption-1 font-instrument text-secondary">Upload file</div>
                                 </label>
                             </div>
                         </fieldset>
 
                         {{-- Name & Slug (side by side col-6) --}}
                         <div class="row mt-5">
-                            <fieldset class="col-6">
+                            <fieldset class="col-12">
                                 <div class="text-caption-1 mb-8">Name <span class="text-primary">*</span></div>
                                 <input type="text" placeholder="Enter category name" class="form-control" name="name"
                                     value="" required id="category-name">
                             </fieldset>
-                            <fieldset class="col-6">
-                                <div class="text-caption-1 mb-8">Slug <span class="text-primary">*</span></div>
-                                <input type="text" placeholder="Auto-generated slug" class="form-control" name="slug"
-                                    value="" required id="category-slug">
-                            </fieldset>
                         </div>
-
-                        {{-- Status --}}
-                        <fieldset class="" style="margin-top: 18px;">
-                            <div class="text-button mb-8">Status <span class="text-primary">*</span></div>
-                            <div class="tf-item-select">
-                                <div class="gap33 d-flex align-items-center">
-                                    <div class="gap12 d-flex align-items-center">
-                                        <input type="radio" name="status" value="active" class="tf-check-rounded">
-                                        <p>Active</p>
-                                    </div>
-                                    <div class="gap12 d-flex align-items-center">
-                                        <input type="radio" name="status" value="inactive" class="tf-check-rounded"
-                                            checked>
-                                        <p>Inactive</p>
-                                    </div>
-                                </div>
-                            </div>
-                        </fieldset>
                     </div>
                 </div>
             </form>

@@ -59,32 +59,35 @@
                     <table>
                         <thead>
                             <tr>
-                                <th class="text-title">ID</th>
-                                <th class="text-title">Name</th>
-                                <th class="text-title" style="width: 226px;">Slug</th>
-                                <th class="text-title" style="width: 80px;">Image</th>
-                                <th class="text-title">Action</th>
+                                <th class="text-title" style="width: 35px;">ID</th>
+                                <th class="text-title" style="width: 149px;">Name</th>
+                                <th class="text-title" style="width: 109px;">Image</th>
+                                <th class="text-title" style="width: 73px;">Action</th>
                             </tr>
                         </thead>
                         <tbody>
-
-                            <tr class="tf-table-item item-row">
-                                <td></td>
-                                <td class="text-caption-1"></td>
-                                <td class="text-caption-1" style="width: 220px;"></td>
-                                <td class="d-flex gap8 justify-content-start">
-                                    <a href="{{ route('category.edit') }}" class="hover-tooltips tf-btn-small">
-                                        <i class="icon icon-edit"></i>
-                                        <span class="tooltips text-caption-1">Edit</span>
-                                    </a>
-                                    <a href="javascript:void(0);" class="hover-tooltips tf-btn-small btns-trash">
-                                        <i class="icon icon-trash"></i>
-                                        <span class="tooltips text-caption-1">Delete</span>
-                                    </a>
-
-
-                                </td>
-                            </tr>
+                            @foreach ($categories as $item)
+                                <tr class="tf-table-item item-row">
+                                    <td style="width: 95px;">{{ $item->id }}</td>
+                                    <td style="width: 216;" class="text-caption-1">{{ $item->name }}</td>
+                                    <td class="text-caption-1" style="width: 161px;"><img
+                                            src="{{ asset('storage/' . $item->image) }}" alt="" width="60px"
+                                            height="60px"></td>
+                                    <td class="d-flex gap8 justify-content-start" style="width:82px;">
+                                        <a href="{{ route('category.edit', $item->id) }}"
+                                            class="hover-tooltips tf-btn-small">
+                                            <i class="icon icon-edit"></i>
+                                            <span class="tooltips text-caption-1">Edit</span>
+                                        </a>
+                                        <a href="javascript:void(0);"
+                                            class="hover-tooltips tf-btn-small btns-trash delete-category"
+                                            data-id="{{ $item->id }}">
+                                            <i class="icon icon-trash"></i>
+                                            <span class="tooltips text-caption-1">Delete</span>
+                                        </a>
+                                    </td>
+                                </tr>
+                            @endforeach
                         </tbody>
                     </table>
 
@@ -109,19 +112,22 @@
             </div>
         </div>
         <!-- /main-content-inner -->
-        <!-- bottom-page -->
-
     </div>
     <!-- /main-content -->
 @endsection
 <script>
     document.addEventListener("DOMContentLoaded", () => {
-        document.querySelectorAll('.delete-staff').forEach(button => {
-            button.addEventListener('click', function(e) {
+        document.querySelectorAll('.delete-category').forEach(button => {
+            // sab purane listeners remove kar do jo theme ne lagaye hain
+            let newButton = button.cloneNode(true);
+            button.parentNode.replaceChild(newButton, button);
+
+            newButton.addEventListener('click', function(e) {
                 e.preventDefault();
+                e.stopImmediatePropagation(); // ✅ koi aur listener trigger na ho
 
                 const userId = this.getAttribute('data-id');
-                const row = this.closest('tr'); // row reference
+                const row = this.closest('tr');
 
                 Swal.fire({
                     title: 'Are you sure?',
@@ -133,7 +139,7 @@
                     confirmButtonText: 'Yes, delete it!'
                 }).then((result) => {
                     if (result.isConfirmed) {
-                        fetch(`/staff/delete/${userId}`, {
+                        fetch(`/category/delete/${userId}`, {
                                 method: 'DELETE',
                                 headers: {
                                     "X-CSRF-TOKEN": document.querySelector(
@@ -148,7 +154,7 @@
                                     Swal.fire('Deleted!', data.message, 'success')
                                         .then(() => {
                                             row
-                                                .remove(); // ✅ ab sirf DB delete hone ke baad hi row remove hoga
+                                        .remove(); // ✅ Ab sirf DB success pe hi remove hoga
                                         });
                                 } else {
                                     Swal.fire('Error!', data.message, 'error');

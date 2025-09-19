@@ -5,7 +5,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
     <meta name="author" content="themesflat.com">
-     <meta name="csrf-token" content="{{ csrf_token() }}">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>Modave - POS</title>
 
     <!-- Theme Style -->
@@ -15,7 +15,10 @@
     <link rel="stylesheet" href="{{ asset('css/bootstrap-select.min.css') }}">
     <link rel="stylesheet" href="{{ asset('css/swiper-bundle.min.css') }}">
     <link rel="stylesheet" href="{{ asset('css/styles.css') }}">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css">
+
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+        crossorigin="anonymous" referrerpolicy="no-referrer">
 
     <!-- Font -->
     <link rel="stylesheet" href="{{ asset('font/fonts.css') }}">
@@ -26,6 +29,32 @@
     <!-- Favicon -->
     <link rel="shortcut icon" href="{{ asset('images/favicon.png') }}">
     <link rel="apple-touch-icon" href="{{ asset('images/favicon.png') }}">
+
+    <!-- ✅ Scroll Fix CSS -->
+    <style>
+        /* पूरे page पर scroll allow */
+        html,
+        body {
+            height: auto !important;
+            min-height: 100vh !important;
+            overflow-y: auto !important;
+            /* vertical scroll force */
+            overflow-x: hidden !important;
+            /* horizontal scroll hide */
+        }
+
+        /* wrapper elements par bhi scroll allow */
+        #wrapper,
+        #page,
+        .layout-wrap,
+        .section-content-right {
+            min-height: 100vh !important;
+            overflow-y: auto !important;
+            overflow-x: hidden !important;
+            position: relative !important;
+        }
+    </style>
+
 </head>
 
 <body class="counter-scroll">
@@ -59,11 +88,16 @@
     <script src="{{ asset('js/carousel.js') }}"></script>
     <script src="{{ asset('js/theme-settings.js') }}" defer></script>
     <script src="{{ asset('js/main.js') }}"></script>
+
+    <!-- SweetAlert -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <!-- jQuery CDN (backup) -->
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js"
-        integrity="sha512-pVJzZZzQW7U6U8WmWMCX9gE3D8Rm5Bz6VqN7Z5L4D8wJ7OHnXhX8aY6aIVRQ7zWqUFrYV6cBFKbcQ+TXxjz5xg=="
-        crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+
+    <!-- Font Awesome JS -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js" crossorigin="anonymous"
+        referrerpolicy="no-referrer"></script>
 
 </body>
 
