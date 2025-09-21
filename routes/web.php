@@ -71,29 +71,32 @@ Route::middleware('auth')->group(function () {
     Route::get('admin/profile', [AdminProfileController::class, 'index'])->name('admin.profile');
     Route::post('/admin/profile', [AdminProfileController::class, 'update'])->name('admin.profile.update');
 
-    //Staff
-    Route::get('staff', [StaffController::class, 'index'])->name('staff.index');
-    Route::get('staff/create', [StaffController::class, 'create'])->name('staff.create');
-    Route::post('/staff/store', [StaffController::class, 'store'])->name('staff.store');
-    Route::get('/staff/edit/{id}', [StaffController::class, 'edit'])->name('staff.edit');
-    Route::post('/staff/update/{id}', [StaffController::class, 'update'])->name('staff.update');
-    Route::delete('/staff/delete/{id}', [StaffController::class, 'destroy'])->name('staff.delete');
+    Route::middleware(['role:Admin'])->group(function () {
+        //Staff
+        Route::get('staff', [StaffController::class, 'index'])->name('staff.index');
+        Route::get('staff/create', [StaffController::class, 'create'])->name('staff.create');
+        Route::post('/staff/store', [StaffController::class, 'store'])->name('staff.store');
+        Route::get('/staff/edit/{id}', [StaffController::class, 'edit'])->name('staff.edit');
+        Route::post('/staff/update/{id}', [StaffController::class, 'update'])->name('staff.update');
+        Route::delete('/staff/delete/{id}', [StaffController::class, 'destroy'])->name('staff.delete');
 
-    //Category
-    Route::get('category', [CategoryController::class, 'index'])->name('category.index');
-    Route::get('category/create', [CategoryController::class, 'create'])->name('category.create');
-    Route::post('/category/store', [CategoryController::class, 'store'])->name('category.store');
-    Route::get('/category/edit/{id}', [CategoryController::class, 'edit'])->name('category.edit');
-    Route::post('/category/update/{id}', [CategoryController::class, 'update'])->name('category.update');
-    Route::delete('/category/delete/{id}', [CategoryController::class, 'destroy'])->name('category.delete');
+        //Category
+        Route::get('category', [CategoryController::class, 'index'])->name('category.index');
+        Route::get('category/create', [CategoryController::class, 'create'])->name('category.create');
+        Route::post('/category/store', [CategoryController::class, 'store'])->name('category.store');
+        Route::get('/category/edit/{id}', [CategoryController::class, 'edit'])->name('category.edit');
+        Route::post('/category/update/{id}', [CategoryController::class, 'update'])->name('category.update');
+        Route::delete('/category/delete/{id}', [CategoryController::class, 'destroy'])->name('category.delete');
 
-     //Products
-    Route::get('product', [ProductController::class, 'index'])->name('product.index');
-    Route::get('product/create', [ProductController::class, 'create'])->name('product.create');
-    Route::post('/product/store', [ProductController::class, 'store'])->name('product.store');
-    Route::get('/product/edit/{id}', [ProductController::class, 'edit'])->name('product.edit');
-    Route::post('/product/update/{id}', [ProductController::class, 'update'])->name('product.update');
-    Route::delete('/product/delete/{id}', [ProductController::class, 'destroy'])->name('product.delete');
+        //Products
+        Route::get('product', [ProductController::class, 'index'])->name('product.index');
+        Route::get('product/create', [ProductController::class, 'create'])->name('product.create');
+        Route::post('/product/store', [ProductController::class, 'store'])->name('product.store');
+        Route::get('/product/edit/{id}', [ProductController::class, 'edit'])->name('product.edit');
+        Route::post('/product/update/{id}', [ProductController::class, 'update'])->name('product.update');
+        Route::delete('/product/delete/{id}', [ProductController::class, 'destroy'])->name('product.delete');
+    });
+
 
     // Logout
     Route::post('logout', [AuthenticatedSessionController::class, 'destroy'])->name('logout');

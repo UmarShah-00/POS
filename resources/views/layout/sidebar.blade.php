@@ -17,7 +17,7 @@
     <div class="section-menu-left-wrap">
         <div class="center">
             <ul class="menu-list">
-                <!-- Dashboard Menu -->
+                <!--Cashier Dashboard -->
                 <li class="menu-item">
                     <a href="{{ route('dashboard.index') }}"
                         class="menu-item-button {{ request()->routeIs('dashboard.index') ? 'active' : '' }}">
@@ -25,34 +25,43 @@
                         <div class="text text-title">Dashboard</div>
                     </a>
                 </li>
+                <!-- Admin Dashboard Menu -->
+                @role('Admin')
+                    <li class="menu-item">
+                        <a href="{{ route('dashboard.index') }}"
+                            class="menu-item-button {{ request()->routeIs('dashboard.index') ? 'active' : '' }}">
+                            <div class="icon"><i class="icon-house"></i></div>
+                            <div class="text text-title">Dashboard</div>
+                        </a>
+                    </li>
+                    <!-- Staff Menu -->
+                    <li class="menu-item">
+                        <a href="{{ route('staff.index') }}"
+                            class="menu-item-button {{ request()->routeIs('staff.index') ? 'active' : '' }}">
+                            <div class="icon"><i class="icon-users"></i></div>
+                            <div class="text text-title">Staff</div>
+                        </a>
+                    </li>
 
-                <!-- Staff Menu -->
-                <li class="menu-item">
-                    <a href="{{ route('staff.index') }}"
-                        class="menu-item-button {{ request()->routeIs('staff.index') ? 'active' : '' }}">
-                        <div class="icon"><i class="icon-users"></i></div>
-                        <div class="text text-title">Staff</div>
-                    </a>
-                </li>
+                    <!-- Category -->
+                    <li class="menu-item">
+                        <a href="{{ route('category.index') }}"
+                            class="menu-item-button {{ request()->routeIs('category.index') ? 'active' : '' }}">
+                            <div class="icon"><i class="icon-folders"></i></div>
+                            <div class="text text-title">Categories</div>
+                        </a>
+                    </li>
 
-                <!-- Category -->
-                <li class="menu-item">
-                    <a href="{{ route('category.index') }}"
-                        class="menu-item-button {{ request()->routeIs('category.index') ? 'active' : '' }}">
-                        <div class="icon"><i class="icon-folders"></i></div>
-                        <div class="text text-title">Categories</div>
-                    </a>
-                </li>
-
-                <!-- Product -->
-                <li class="menu-item">
-                    <a href="{{ route('product.index') }}"
-                        class="menu-item-button {{ request()->routeIs('product.index') ? 'active' : '' }}">
-                        <div class="icon"> <i class="icon-package"></i>
-                        </div>
-                        <div class="text text-title">Products</div>
-                    </a>
-                </li>
+                    <!-- Product -->
+                    <li class="menu-item">
+                        <a href="{{ route('product.index') }}"
+                            class="menu-item-button {{ request()->routeIs('product.index') ? 'active' : '' }}">
+                            <div class="icon"> <i class="icon-package"></i>
+                            </div>
+                            <div class="text text-title">Products</div>
+                        </a>
+                    </li>
+                @endrole
                 <!-- Logout -->
                 <li class="menu-item">
                     <a href="#" onclick="event.preventDefault(); document.getElementById('logout-form').submit();"
