@@ -11,6 +11,7 @@ use App\Http\Controllers\AdminProfileController;
 use App\Http\Controllers\Auth\PasswordController;
 use App\Http\Controllers\Auth\NewPasswordController;
 use App\Http\Controllers\Auth\VerifyEmailController;
+use App\Http\Controllers\CashierDashboardController;
 use App\Http\Controllers\Auth\RegisteredUserController;
 use App\Http\Controllers\Auth\PasswordResetLinkController;
 use App\Http\Controllers\Auth\ConfirmablePasswordController;
@@ -24,12 +25,22 @@ use App\Http\Controllers\Auth\EmailVerificationNotificationController;
 |--------------------------------------------------------------------------
 */
 
-// 🔹 Root URL: Redirect logic
 Route::get('/', function () {
-    return auth()->check()
-        ? redirect()->route('dashboard.index') // Agar logged in hai to dashboard
-        : redirect()->route('login');          // Nahi to login
+    if (!auth()->check()) {
+        return redirect()->route('login');
+    }
+
+    $user = auth()->user();
+
+    if ($user->hasRole('Admin')) {
+        return redirect()->route('dashboard.index');
+    } elseif ($user->hasRole('Cashier')) {
+        return redirect()->route('cashier.dashboard');
+    }
+
+    return redirect()->route('dashboard.index');
 });
+
 
 // 🔹 Guest Routes (Login, Register, etc.)
 Route::middleware('guest')->group(function () {
@@ -49,6 +60,9 @@ Route::middleware('guest')->group(function () {
 Route::middleware('auth')->group(function () {
     // Dashboard
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard.index');
+
+    // Cashier Dashboard
+    Route::get('/cashier-dashboard', [CashierDashboardController::class, 'index'])->name('cashier.dashboard');
 
     // Profile
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
@@ -96,6 +110,8 @@ Route::middleware('auth')->group(function () {
         Route::post('/product/update/{id}', [ProductController::class, 'update'])->name('product.update');
         Route::delete('/product/delete/{id}', [ProductController::class, 'destroy'])->name('product.delete');
     });
+    Route::get('/products/find', [ProductController::class, 'findByBarcode'])->name('products.find');
+    Route::get('/products/search', [ProductController::class, 'search'])->name('products.search');
 
 
     // Logout

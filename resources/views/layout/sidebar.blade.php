@@ -18,13 +18,15 @@
         <div class="center">
             <ul class="menu-list">
                 <!--Cashier Dashboard -->
+                  @role('Cashier')
                 <li class="menu-item">
-                    <a href="{{ route('dashboard.index') }}"
-                        class="menu-item-button {{ request()->routeIs('dashboard.index') ? 'active' : '' }}">
+                    <a href="{{ route('cashier.dashboard') }}"
+                        class="menu-item-button {{ request()->routeIs('cashier.dashboard') ? 'active' : '' }}">
                         <div class="icon"><i class="icon-house"></i></div>
                         <div class="text text-title">Dashboard</div>
                     </a>
                 </li>
+                @endrole
                 <!-- Admin Dashboard Menu -->
                 @role('Admin')
                     <li class="menu-item">

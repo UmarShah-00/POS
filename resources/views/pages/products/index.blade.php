@@ -74,16 +74,26 @@
                             @foreach ($products as $item)
                                 <tr class="tf-table-item item-row">
                                     <td style="width: 50px;">{{ $item->id }}</td>
-                                    <td style="width: 84;" class="text-caption-1">{{ $item->name }}</td>
-                                    <td style="width: 140;" class="text-caption-1">
-                                        {{ $item->category ? $item->category->name : 'No Category' }}</td>
-                                    <td style="width: 157;" class="text-caption-1">{{ $item->barcode }}</td>
-                                    <td style="width: 95;" class="text-caption-1">{{ $item->price }}</td>
-                                    <td style="width: 48;" class="text-caption-1">{{ $item->stock }}</td>
-                                    <td style="width: 133;" class="text-caption-1">{{ $item->unit }}</td>
-                                    <td class="text-caption-1" style="width: 65px;"><img
-                                            src="{{ asset('storage/' . $item->image) }}" alt="" width="60px"
-                                            height="60px"></td>
+                                    <td style="width: 84px;" class="text-caption-1">{{ $item->name }}</td>
+                                    <td style="width: 140px;" class="text-caption-1">
+                                        {{ $item->category ? $item->category->name : 'No Category' }}
+                                    </td>
+                                    <td style="width: 157px;" class="text-caption-1">
+                                        {{ $item->variants->first() ? $item->variants->first()->barcode : 'No Barcode' }}
+                                    </td>
+                                    <td style="width: 95px;" class="text-caption-1">{{ $item->price }}</td>
+                                    <td style="width: 48px;" class="text-caption-1">
+                                        {{ $item->variants->first() ? $item->variants->first()->stock : 'No Stock' }}
+                                    </td>
+                                    <td style="width: 133px;" class="text-caption-1">{{ $item->unit }}</td>
+                                    <td class="text-caption-1" style="width: 65px;">
+                                        @if ($item->variants->first())
+                                            <img src="{{ asset('storage/' . $item->variants->first()->image) }}"
+                                                alt="" width="60px" height="60px">
+                                        @else
+                                            No Image
+                                        @endif
+                                    </td>
                                     <td class="d-flex gap8 justify-content-start" style="width:82px;">
                                         <a href="{{ route('product.edit', $item->id) }}"
                                             class="hover-tooltips tf-btn-small">
@@ -99,6 +109,7 @@
                                     </td>
                                 </tr>
                             @endforeach
+
                         </tbody>
                     </table>
 
