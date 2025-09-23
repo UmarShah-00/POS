@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\PosController;
 use App\Http\Controllers\LoginController;
 use App\Http\Controllers\StaffController;
 use App\Http\Controllers\ProductController;
@@ -113,7 +114,8 @@ Route::middleware('auth')->group(function () {
     Route::get('/products/find', [ProductController::class, 'findByBarcode'])->name('products.find');
     Route::get('/products/search', [ProductController::class, 'search'])->name('products.search');
 
-
+    Route::post('/checkout', [PosController::class, 'checkout'])->name('checkout');
+    Route::get('/invoice/{id}', [PosController::class, 'invoice'])->name('invoice.show');
     // Logout
     Route::post('logout', [AuthenticatedSessionController::class, 'destroy'])->name('logout');
 });

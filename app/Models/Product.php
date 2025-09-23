@@ -8,12 +8,15 @@ use Illuminate\Database\Eloquent\Model;
 class Product extends Model
 {
     use HasFactory;
-protected $fillable = ['category_id', 'name', 'price', 'unit'];
-
-    public function variants()
-    {
-        return $this->hasMany(ProductVariant::class);
-    }
+    protected $fillable = [
+        'category_id',
+        'name',
+        'price_per_unit',
+        'unit',
+        'barcode',
+        'stock',
+        'image'
+    ];
 
     public function category()
     {

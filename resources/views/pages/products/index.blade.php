@@ -79,16 +79,16 @@
                                         {{ $item->category ? $item->category->name : 'No Category' }}
                                     </td>
                                     <td style="width: 157px;" class="text-caption-1">
-                                        {{ $item->variants->first() ? $item->variants->first()->barcode : 'No Barcode' }}
+                                        {{ $item ? $item->barcode : 'No Barcode' }}
                                     </td>
-                                    <td style="width: 95px;" class="text-caption-1">{{ $item->price }}</td>
+                                    <td style="width: 95px;" class="text-caption-1">{{ $item->price_per_unit }}</td>
                                     <td style="width: 48px;" class="text-caption-1">
-                                        {{ $item->variants->first() ? $item->variants->first()->stock : 'No Stock' }}
+                                        {{ $item ? $item->stock : 'No Stock' }}
                                     </td>
                                     <td style="width: 133px;" class="text-caption-1">{{ $item->unit }}</td>
                                     <td class="text-caption-1" style="width: 65px;">
-                                        @if ($item->variants->first())
-                                            <img src="{{ asset('storage/' . $item->variants->first()->image) }}"
+                                        @if ($item)
+                                            <img src="{{ asset('storage/' . $item->image) }}"
                                                 alt="" width="60px" height="60px">
                                         @else
                                             No Image

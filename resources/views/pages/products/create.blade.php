@@ -86,9 +86,9 @@
 
                         {{-- Price --}}
                         <fieldset class="col-6 mb-4">
-                            <div class="text-caption-1 mb-8">Price <span class="text-primary">*</span></div>
+                            <div class="text-caption-1 mb-8">Price Per Product <span class="text-primary">*</span></div>
                             <input type="number" step="0.01" placeholder="Enter price" class="form-control"
-                                name="price" value="{{ old('price') }}" required>
+                                name="price_per_unit" value="{{ old('price_per_unit') }}" required>
                         </fieldset>
 
                         {{-- Stock --}}
@@ -99,18 +99,11 @@
                         </fieldset>
 
                         {{-- Unit --}}
-                        <fieldset class="col-6 mb-4">
+                        <fieldset class="col mb-4">
                             <div class="text-caption-1 mb-8">Unit</div>
                             <input type="text" placeholder="e.g. kg, liter, pcs" class="form-control" name="unit"
                                 value="{{ old('unit') }}">
                         </fieldset>
-
-                        {{-- Expiry Date --}}
-                        <fieldset class="col-6 mb-4">
-                            <div class="text-caption-1 mb-8">Expiry Date</div>
-                            <input type="date" class="form-control" name="expiry_date" value="{{ old('expiry_date') }}">
-                        </fieldset>
-
                     </div>
                 </div>
             </form>

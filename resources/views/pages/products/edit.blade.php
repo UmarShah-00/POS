@@ -36,7 +36,7 @@
                             <div class="text-caption-1 mb-8">Product Image</div>
                             <div class="upload-image style-2">
                                 <div class="upload-img">
-                                    <img src="{{ $product->variants->first() ? asset('storage/' . $product->variants->first()->image) : asset('images/categories/categories-img-1.jpg') }}"
+                                    <img src="{{ $product ? asset('storage/' . $product->image) : asset('images/categories/categories-img-1.jpg') }}"
                                         id="preview-image" alt="Preview" style="max-width: 200px; border-radius: 6px;">
                                 </div>
                                 <label class="uploadfile" for="image">
@@ -56,7 +56,7 @@
                             <div class="text-caption-1 mb-8 mt-3">Barcode</div>
                             <input type="text" placeholder="Enter Barcode" class="form-control" name="barcode"
                                 id="barcode"
-                                value="{{ old('barcode', $product->variants->first() ? $product->variants->first()->barcode : '') }}">
+                                value="{{ old('barcode', $product ? $product->barcode : '') }}">
 
                             <small class="text-secondary">Check the box to auto-generate barcode</small>
                         </fieldset>
@@ -84,31 +84,24 @@
 
                         {{-- Price --}}
                         <fieldset class="col-6 mb-4">
-                            <div class="text-caption-1 mb-8">Price <span class="text-primary">*</span></div>
+                            <div class="text-caption-1 mb-8">Price Per Product <span class="text-primary">*</span></div>
                             <input type="number" step="0.01" placeholder="Enter price" class="form-control"
-                                name="price" value="{{ old('price', $product->price) }}" required>
+                                name="price_per_unit" value="{{ old('price_per_unit', $product->price_per_unit) }}" required>
                         </fieldset>
 
                         {{-- Stock --}}
                         <fieldset class="col-6 mb-4">
                             <div class="text-caption-1 mb-8">Stock <span class="text-primary">*</span></div>
                             <input type="number" placeholder="Enter stock quantity" class="form-control" name="stock"
-                                value="{{ old('stock', $product->variants->first() ? $product->variants->first()->stock : 0) }}"
+                                value="{{ old('stock', $product ? $product->stock : 0) }}"
                                 required>
                         </fieldset>
 
                         {{-- Unit --}}
-                        <fieldset class="col-6 mb-4">
+                        <fieldset class="col mb-4">
                             <div class="text-caption-1 mb-8">Unit</div>
                             <input type="text" placeholder="e.g. kg, liter, pcs" class="form-control" name="unit"
                                 value="{{ old('unit', $product->unit) }}">
-                        </fieldset>
-
-                        {{-- Expiry Date --}}
-                        <fieldset class="col-6 mb-4">
-                            <div class="text-caption-1 mb-8">Expiry Date</div>
-                            <input type="date" class="form-control" name="expiry_date"
-                                value="{{ old('expiry_date', $product->expiry_date) }}">
                         </fieldset>
 
                     </div>
