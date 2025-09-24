@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Str;
 use App\Models\Sale;
 use App\Models\SaleItem;
 use App\Models\Product;
@@ -51,7 +50,20 @@ class PosController extends Controller
                     return response()->json(['status' => 'error', 'message' => 'Product not found: id ' . $c['id']], 404);
                 }
 
-                if ($product->stock < $c['qty']) {
+                // ✅ Convert qty according to unit
+                $unit = strtolower($product->unit);
+                $deductQty = $c['qty']; // default
+
+                if ($unit === 'kg') {
+                    // qty from frontend is in KG → convert to grams
+                    $deductQty = $c['qty'] * 1000;
+                } elseif ($unit === 'litre') {
+                    // qty from frontend is in Litre → convert to ml
+                    $deductQty = $c['qty'] * 1000;
+                }
+                // piece/packet remain as is
+
+                if ($product->stock < $deductQty) {
                     DB::rollBack();
                     return response()->json([
                         'status' => 'error',
@@ -64,12 +76,13 @@ class PosController extends Controller
                 SaleItem::create([
                     'sale_id'   => $sale->id,
                     'product_id' => $product->id,
-                    'quantity'  => $c['qty'],
+                    'quantity'  => $c['qty'], // save original qty (kg/litre/piece)
                     'price'     => $c['price'],
                     'subtotal'  => $subtotal,
                 ]);
 
-                $product->decrement('stock', $c['qty']);
+                // ✅ Decrement stock in smallest unit
+                $product->decrement('stock', $deductQty);
             }
 
             DB::commit();
@@ -82,10 +95,13 @@ class PosController extends Controller
             ]);
         } catch (\Throwable $e) {
             DB::rollBack();
-            return response()->json(['status' => 'error', 'message' => 'Checkout failed', 'error' => $e->getMessage()], 500);
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Checkout failed',
+                'error' => $e->getMessage()
+            ], 500);
         }
     }
-
 
     // Show invoice view
     public function invoice($id)

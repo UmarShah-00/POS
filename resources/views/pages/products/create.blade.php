@@ -12,7 +12,6 @@
             border-radius: 0.25rem !important;
             color: #fff !important;
         }
-
     </style>
 @endpush
 
@@ -100,10 +99,33 @@
 
                         {{-- Unit --}}
                         <fieldset class="col mb-4">
-                            <div class="text-caption-1 mb-8">Unit</div>
-                            <input type="text" placeholder="e.g. kg, liter, pcs" class="form-control" name="unit"
-                                value="{{ old('unit') }}">
+                            <div class="text-caption-1 mb-8">
+                                Unit <span class="text-primary">*</span>
+                            </div>
+                            <select name="unit" class="form-control" required style="height: 47px; font-size: 15px;">
+                                <option value="">-- Select Unit --</option>
+                                <option value="piece">Piece</option>
+                                <option value="packet">Packet</option>
+                                <option value="dozen">Dozen</option>
+                                <option value="box">Box</option>
+                                <option value="set">Set</option>
+                                <option value="pair">Pair</option>
+                                <option value="roll">Roll</option>
+                                <option value="carton">Carton</option>
+                                <option value="kg">Kg</option>
+                                <option value="gram">Gram</option>
+                                <option value="litre">Litre</option>
+                                <option value="ml">Millilitre (ml)</option>
+                                <option value="meter">Meter</option>
+                                <option value="cm">Centimeter (cm)</option>
+                            </select>
+                            <small class="text-secondary">
+                                Example: <b>Kg</b> for loose items (rice, sugar), <b>Litre</b> for liquids (milk, oil),
+                                <b>Piece/Packet</b> for packaged items, <b>Dozen</b> for eggs, <b>Meter</b> for cloth,
+                                <b>Pair</b> for shoes, <b>Roll</b> for tape, <b>Carton</b> for wholesale boxes.
+                            </small>
                         </fieldset>
+
                     </div>
                 </div>
             </form>

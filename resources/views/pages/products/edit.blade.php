@@ -55,8 +55,7 @@
                             </label>
                             <div class="text-caption-1 mb-8 mt-3">Barcode</div>
                             <input type="text" placeholder="Enter Barcode" class="form-control" name="barcode"
-                                id="barcode"
-                                value="{{ old('barcode', $product ? $product->barcode : '') }}">
+                                id="barcode" value="{{ old('barcode', $product ? $product->barcode : '') }}">
 
                             <small class="text-secondary">Check the box to auto-generate barcode</small>
                         </fieldset>
@@ -86,22 +85,44 @@
                         <fieldset class="col-6 mb-4">
                             <div class="text-caption-1 mb-8">Price Per Product <span class="text-primary">*</span></div>
                             <input type="number" step="0.01" placeholder="Enter price" class="form-control"
-                                name="price_per_unit" value="{{ old('price_per_unit', $product->price_per_unit) }}" required>
+                                name="price_per_unit" value="{{ old('price_per_unit', $product->price_per_unit) }}"
+                                required>
                         </fieldset>
 
                         {{-- Stock --}}
                         <fieldset class="col-6 mb-4">
                             <div class="text-caption-1 mb-8">Stock <span class="text-primary">*</span></div>
                             <input type="number" placeholder="Enter stock quantity" class="form-control" name="stock"
-                                value="{{ old('stock', $product ? $product->stock : 0) }}"
-                                required>
+                                value="{{ old('stock', $product ? $product->stock : 0) }}" required>
                         </fieldset>
 
                         {{-- Unit --}}
                         <fieldset class="col mb-4">
-                            <div class="text-caption-1 mb-8">Unit</div>
-                            <input type="text" placeholder="e.g. kg, liter, pcs" class="form-control" name="unit"
-                                value="{{ old('unit', $product->unit) }}">
+                            <div class="text-caption-1 mb-8">
+                                Unit <span class="text-primary">*</span>
+                            </div>
+                            <select name="unit" class="form-control" required style="height: 47px; font-size: 15px;">
+                                <option value="">-- Select Unit --</option>
+                                <option value="piece">Piece</option>
+                                <option value="packet">Packet</option>
+                                <option value="dozen">Dozen</option>
+                                <option value="box">Box</option>
+                                <option value="set">Set</option>
+                                <option value="pair">Pair</option>
+                                <option value="roll">Roll</option>
+                                <option value="carton">Carton</option>
+                                <option value="kg">Kg</option>
+                                <option value="gram">Gram</option>
+                                <option value="litre">Litre</option>
+                                <option value="ml">Millilitre (ml)</option>
+                                <option value="meter">Meter</option>
+                                <option value="cm">Centimeter (cm)</option>
+                            </select>
+                            <small class="text-secondary">
+                                Example: <b>Kg</b> for loose items (rice, sugar), <b>Litre</b> for liquids (milk, oil),
+                                <b>Piece/Packet</b> for packaged items, <b>Dozen</b> for eggs, <b>Meter</b> for cloth,
+                                <b>Pair</b> for shoes, <b>Roll</b> for tape, <b>Carton</b> for wholesale boxes.
+                            </small>
                         </fieldset>
 
                     </div>
