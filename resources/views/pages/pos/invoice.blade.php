@@ -120,24 +120,34 @@
             <tbody>
                 @foreach ($sale->items as $item)
                     @php
-                        $unit = strtolower($item->product->unit ?? '');
-                        $qty = (float) $item->quantity;
+                        $unit = strtolower($item->product->unit);
+                        $priceLabel = number_format($item->price);
 
                         if ($unit === 'kg') {
-                            $qtyDisplay = $qty * 1000 . ' g';
+                            $priceLabel .= ' / Kg';
                         } elseif ($unit === 'litre') {
-                            $qtyDisplay = $qty * 1000 . ' ml';
-                        } else {
-                            $qtyDisplay = $qty . ' pcs';
+                            $priceLabel .= ' / Litre';
+                        } elseif ($unit === 'piece' || $unit === 'packet') {
+                            $priceLabel .= ' / Piece';
                         }
                     @endphp
+
                     <tr>
                         <td>{{ $item->product->name }}</td>
-                        <td>{{ $qtyDisplay }}</td>
-                        <td>{{ number_format($item->price, 0) }}</td>
-                        <td class="right">{{ number_format($item->subtotal, 0) }}</td>
+                        <td>
+                            @if ($unit === 'kg')
+                                {{ $item->quantity }} g
+                            @elseif($unit === 'litre')
+                                {{ $item->quantity }} ml
+                            @else
+                                {{ $item->quantity }}
+                            @endif
+                        </td>
+                        <td>{{ $priceLabel }}</td>
+                        <td style="display: flex; justify-content: end;">{{ number_format($item->subtotal, 2) }}</td>
                     </tr>
                 @endforeach
+
 
             </tbody>
         </table>

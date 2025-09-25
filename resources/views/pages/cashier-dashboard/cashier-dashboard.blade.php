@@ -78,372 +78,309 @@
 @endsection
 
 @section('scripts')
-    <!-- ✅ SweetAlert2 -->
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<!-- ✅ SweetAlert2 -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
-    <script>
-        window.cart = [];
+<script>
+    window.cart = [];
 
-        // ✅ SweetAlert Style (confirm = default, cancel = custom)
-        const swalWithDarkBtn = Swal.mixin({
-            customClass: {
-                cancelButton: 'swal2-cancel'
-            },
-            buttonsStyling: true
-        });
+    const swalWithDarkBtn = Swal.mixin({
+        customClass: { cancelButton: 'swal2-cancel' },
+        buttonsStyling: true
+    });
 
-        // ✅ Format weight nicely (0.125 → 125, 1.25 → 1250)
-        function formatWeight(qty) {
-            if (isNaN(qty) || qty <= 0) return "0";
-            return Math.round(qty * 1000); // convert kg/litre → g/ml
+    // ✅ Format Qty for display
+    function formatQty(qty, unit) {
+        if (unit === 'kg') {
+            return qty + ' g';
+        } else if (unit === 'litre') {
+            return qty + ' ml';
+        } else {
+            return qty + ' pcs';
+        }
+    }
+
+    document.addEventListener('DOMContentLoaded', function () {
+        const input = document.getElementById('barcode-input');
+        const searchInput = document.getElementById('search-input');
+        const searchResults = document.getElementById('search-results');
+        const cartBody = document.getElementById('cart-body');
+        const grandTotalEl = document.getElementById('grand-total');
+        let typingTimer;
+        const doneTypingInterval = 300;
+
+        // ✅ Fetch product
+        async function fetchProduct(barcode) {
+            try {
+                const res = await fetch("{{ route('products.find') }}?barcode=" + encodeURIComponent(barcode));
+                if (!res.ok) throw new Error('Not found');
+                const product = await res.json();
+                handleProduct(product);
+            } catch {
+                swalWithDarkBtn.fire('❌ Error', 'Product not found', 'error');
+            }
         }
 
-        document.addEventListener('DOMContentLoaded', function() {
-            const input = document.getElementById('barcode-input');
-            const searchInput = document.getElementById('search-input');
-            const searchResults = document.getElementById('search-results');
-            const cartBody = document.getElementById('cart-body');
-            const grandTotalEl = document.getElementById('grand-total');
+        // ✅ Handle product add
+        function handleProduct(product) {
+            const unit = product.unit ? product.unit.toLowerCase() : '';
 
-            let typingTimer;
-            const doneTypingInterval = 300;
-
-            // ✅ Fetch Product by barcode
-            async function fetchProduct(barcode) {
-                try {
-                    const res = await fetch("{{ route('products.find') }}?barcode=" + encodeURIComponent(
-                        barcode));
-                    if (!res.ok) throw new Error('Not found');
-                    const product = await res.json();
-                    handleProduct(product);
-                } catch (err) {
-                    swalWithDarkBtn.fire('❌ Error', 'Product not found', 'error');
-                }
-            }
-
-            // ✅ Handle Product by unit
-            function handleProduct(product) {
-                const unit = product.unit ? product.unit.toLowerCase() : '';
-
-                if (unit === 'piece' || unit === 'packet') {
-                    addToCart(product, 1);
-                } else if (unit === 'kg' || unit === 'litre') {
-                    swalWithDarkBtn.fire({
-                        title: `Enter ${product.unit} or Amount`,
-                        html: `
-                            <p class="text-muted small">
-                              Example: 0.125 = 125 grams, 0.25 = 250 grams <br>
-                              Or enter total amount in Rs.
-                            </p>
-                            <input id="weight" class="swal2-input" placeholder="Weight in ${product.unit}">
-                            <input id="amount" class="swal2-input" placeholder="Amount in Rs">
-                        `,
-                        focusConfirm: false,
-                        showCancelButton: true,
-                        confirmButtonText: 'Add to Cart',
-                        cancelButtonText: 'Cancel',
-                        preConfirm: () => {
-                            const weightVal = document.getElementById('weight').value.trim();
-                            const amountVal = document.getElementById('amount').value.trim();
-
-                            const weight = weightVal ? parseFloat(weightVal) : null;
-                            const amount = amountVal ? parseFloat(amountVal) : null;
-
-                            if ((!weight && !amount) || (isNaN(weight) && isNaN(amount))) {
-                                Swal.showValidationMessage('⚠ Please enter weight or amount');
-                                return false;
-                            }
-
-                            if (weight && !isNaN(weight)) {
-                                return {
-                                    mode: 'weight',
-                                    value: weight
-                                };
-                            }
-                            if (amount && !isNaN(amount)) {
-                                return {
-                                    mode: 'amount',
-                                    value: amount
-                                };
-                            }
-                        }
-                    }).then((result) => {
-                        if (!result.isConfirmed) return;
-
-                        const price = parseFloat(product.price_per_unit || product.price) || 0;
-
-                        if (result.value.mode === 'weight') {
-                            addToCart(product, result.value.value); // qty = weight (kg)
-                        } else {
-                            const amount = result.value.value;
-                            const qty = price > 0 ? (amount / price) : 0;
-
-                            if (isNaN(qty) || qty <= 0) {
-                                swalWithDarkBtn.fire('❌ Error', 'Invalid amount entered', 'error');
-                                return;
-                            }
-                            addToCart(product, qty);
-                        }
-                    });
-                } else {
-                    swalWithDarkBtn.fire('⚠ Unknown Unit', 'This product has an unsupported unit type', 'warning');
-                }
-            }
-
-            // ✅ Add to Cart
-            function addToCart(product, qty) {
-                qty = parseFloat(qty) || 0;
-                if (qty <= 0) return;
-
-                const existing = window.cart.find(item => item.id === product.id);
-                if (existing) {
-                    existing.qty += qty;
-                } else {
-                    window.cart.push({
-                        ...product,
-                        qty: qty
-                    });
-                }
-                renderCart();
-            }
-
-            // ✅ Render Cart
-            function renderCart() {
-                cartBody.innerHTML = '';
-                let total = 0;
-
-                window.cart.forEach((item, idx) => {
-                    const price = parseFloat(item.price_per_unit || item.price) || 0;
-                    const qty = parseFloat(item.qty) || 0;
-                    const lineTotal = qty * price;
-                    total += lineTotal;
-
-                    let displayQty;
-                    const unit = item.unit ? item.unit.toLowerCase() : '';
-                    let unitLabel = '';
-                    if (unit === 'kg') {
-                        displayQty = formatWeight(qty);
-                        unitLabel = 'g';
-                    } else if (unit === 'litre') {
-                        displayQty = formatWeight(qty);
-                        unitLabel = 'ml';
-                    } else {
-                        displayQty = Number.isInteger(qty) ? qty : qty;
-                        unitLabel = 'pcs';
-                    }
-
-                    const row = `
-                        <tr>
-                          <td>${item.name}</td>
-                          <td>${item.barcode}</td>
-                          <td><span class="text-dark fw-semibold">Rs. ${price.toFixed(2)}</span></td>
-                          <td>
-                            <div class="d-flex align-items-center justify-content-center" style="gap:4px; width:140px;">
-                              <div class="d-flex align-items-center justify-content-center" style="gap:6px; width:160px;">
-  <button class="btn btn-sm dec-btn" data-idx="${idx}" 
-          style="width:50px; height:28px; background:gray; color:white; font-size:15px; border-radius:4px;">
-    –
-  </button>
-
-  <span class="qty-display d-inline-block text-center border rounded px-2 fw-bold" 
-        data-idx="${idx}" 
-        style="min-width:60px; background:#f8f9fa; line-height:26px;">
-    ${displayQty} ${unitLabel}
-  </span>
-
-  <button class="btn btn-sm inc-btn" data-idx="${idx}" 
-          style="width:50px; height:28px; background:gray; color:white; font-size:15px; border-radius:4px;">
-    +
-  </button>
-</div>
-
-                            </div>
-                          </td>
-                          <td><span class="fw-bold text-success">Rs. ${lineTotal.toFixed(2)}</span></td>
-                          <td>
-                            <button class="btn btn-sm btn-danger remove-btn" data-idx="${idx}">X</button>
-                          </td>
-                        </tr>
-                    `;
-                    cartBody.insertAdjacentHTML('beforeend', row);
-                });
-
-                grandTotalEl.innerHTML = `<strong class="text-success fs-5">Rs. ${total.toFixed(2)} /-</strong>`;
-                document.getElementById('cart-count').textContent =
-                    window.cart.length + (window.cart.length === 1 ? " Item" : " Items");
-
-                // ✅ Qty Update
-                document.querySelectorAll('.qty-input').forEach(input => {
-                    input.addEventListener('change', (e) => {
-                        const idx = e.target.dataset.idx;
-                        let newQty = parseFloat(e.target.value);
-
-                        const unit = window.cart[idx].unit ? window.cart[idx].unit.toLowerCase() :
-                            '';
-                        if (unit === 'kg' || unit === 'litre') {
-                            newQty = (isNaN(newQty) || newQty <= 0) ? 0.001 : newQty / 1000;
-                        } else {
-                            newQty = (isNaN(newQty) || newQty <= 0) ? 1 : newQty;
-                        }
-
-                        window.cart[idx].qty = newQty;
-                        renderCart();
-                    });
-                });
-
-                // ✅ Increment
-                document.querySelectorAll('.inc-btn').forEach(btn => {
-                    btn.addEventListener('click', (e) => {
-                        const idx = e.target.dataset.idx;
-                        const unit = window.cart[idx].unit.toLowerCase();
-                        if (unit === 'kg' || unit === 'litre') {
-                            window.cart[idx].qty += 0.001; // 1g/ml
-                        } else {
-                            window.cart[idx].qty += 1;
-                        }
-                        renderCart();
-                    });
-                });
-
-                // ✅ Decrement
-                document.querySelectorAll('.dec-btn').forEach(btn => {
-                    btn.addEventListener('click', (e) => {
-                        const idx = e.target.dataset.idx;
-                        const unit = window.cart[idx].unit.toLowerCase();
-                        if (unit === 'kg' || unit === 'litre') {
-                            window.cart[idx].qty = Math.max(0.001, window.cart[idx].qty - 0.001);
-                        } else {
-                            window.cart[idx].qty = Math.max(1, window.cart[idx].qty - 1);
-                        }
-                        renderCart();
-                    });
-                });
-
-                // ✅ Remove Item
-                document.querySelectorAll('.remove-btn').forEach(btn => {
-                    btn.addEventListener('click', (e) => {
-                        const idx = e.target.dataset.idx;
-                        window.cart.splice(idx, 1);
-                        renderCart();
-                    });
-                });
-            }
-
-            // ✅ Barcode Scanner
-            input.addEventListener('input', function() {
-                clearTimeout(typingTimer);
-                if (input.value.trim()) {
-                    typingTimer = setTimeout(() => {
-                        fetchProduct(input.value.trim());
-                        input.value = '';
-                    }, doneTypingInterval);
-                }
-            });
-
-            // ✅ Search Input
-            searchInput.addEventListener('input', function() {
-                const query = this.value.trim();
-                if (query.length > 1) {
-                    searchProducts(query);
-                } else {
-                    searchResults.style.display = 'none';
-                }
-            });
-
-            // ✅ Search Products
-            async function searchProducts(query) {
-                try {
-                    const res = await fetch("{{ route('products.search') }}?name=" + encodeURIComponent(query));
-                    if (!res.ok) throw new Error('Search failed');
-                    const products = await res.json();
-                    renderSearchResults(products);
-                } catch (err) {
-                    console.error(err);
-                }
-            }
-
-            // ✅ Render Search Dropdown
-            function renderSearchResults(products) {
-                searchResults.innerHTML = '';
-
-                if (products.length === 0) {
-                    searchResults.style.display = 'none';
-                    return;
-                }
-
-                products.forEach(product => {
-                    const item = document.createElement('div');
-                    item.className = 'list-group-item list-group-item-action d-flex align-items-center';
-                    item.style.cursor = 'pointer';
-                    item.innerHTML = `
-                        <img src="${product.image}" alt="${product.name}" class="me-2 rounded"
-                             style="width:40px; height:40px; object-fit:cover;">
-                        <div>
-                          <div class="fw-bold">${product.name}</div>
-                          <small class="text-muted">Barcode: ${product.barcode}</small>
-                        </div>
-                    `;
-                    item.addEventListener('click', () => {
-                        handleProduct(product);
-                        searchResults.style.display = 'none';
-                        searchInput.value = '';
-                    });
-                    searchResults.appendChild(item);
-                });
-
-                searchResults.style.display = 'block';
-            }
-
-            // ✅ Checkout
-            document.getElementById('checkout-btn').addEventListener('click', async function() {
-                if (window.cart.length === 0) {
-                    swalWithDarkBtn.fire('⚠ Empty', 'Cart is empty', 'warning');
-                    return;
-                }
-
-                const payloadCart = window.cart.map(item => ({
-                    id: item.id,
-                    qty: item.qty,
-                    price: item.price_per_unit || item.price
-                }));
-
-                const confirm = await swalWithDarkBtn.fire({
-                    title: 'Confirm Checkout?',
-                    text: 'Are you sure you want to checkout?',
-                    icon: 'question',
+            if (unit === 'piece' || unit === 'packet') {
+                addToCart(product, 1);
+            } else if (unit === 'kg' || unit === 'litre') {
+                swalWithDarkBtn.fire({
+                    title: `Enter ${product.unit} or Amount`,
+                    html: `
+                        <p class="text-muted small">
+                          Example: 125 = 125 grams/ml, 250 = 250 grams/ml <br>
+                          Or enter total amount in Rs.
+                        </p>
+                        <input id="weight" class="swal2-input" placeholder="Weight in grams/ml">
+                        <input id="amount" class="swal2-input" placeholder="Amount in Rs">
+                    `,
+                    focusConfirm: false,
                     showCancelButton: true,
-                    confirmButtonText: 'Yes, Checkout',
-                    cancelButtonText: 'Cancel'
+                    confirmButtonText: 'Add to Cart',
+                    cancelButtonText: 'Cancel',
+                    preConfirm: () => {
+                        const weightVal = document.getElementById('weight').value.trim();
+                        const amountVal = document.getElementById('amount').value.trim();
+                        const weight = weightVal ? parseInt(weightVal) : null; // ✅ grams/ml direct
+                        const amount = amountVal ? parseFloat(amountVal) : null;
+
+                        if ((!weight && !amount) || (isNaN(weight) && isNaN(amount))) {
+                            Swal.showValidationMessage('⚠ Please enter weight or amount');
+                            return false;
+                        }
+
+                        if (weight && !isNaN(weight)) {
+                            return { mode: 'weight', value: weight };
+                        }
+                        if (amount && !isNaN(amount)) {
+                            return { mode: 'amount', value: amount };
+                        }
+                    }
+                }).then((result) => {
+                    if (!result.isConfirmed) return;
+                    const price = parseFloat(product.price_per_unit || product.price) || 0;
+
+                    if (result.value.mode === 'weight') {
+                        addToCart(product, result.value.value); // ✅ stored as grams/ml
+                    } else {
+                        const amount = result.value.value;
+                        const qty = price > 0 ? (amount / price) * 1000 : 0; // Rs → grams/ml
+                        if (isNaN(qty) || qty <= 0) {
+                            swalWithDarkBtn.fire('❌ Error', 'Invalid amount entered', 'error');
+                            return;
+                        }
+                        addToCart(product, Math.round(qty));
+                    }
                 });
 
-                if (!confirm.isConfirmed) return;
+            } else {
+                swalWithDarkBtn.fire('⚠ Unknown Unit', 'This product has an unsupported unit type', 'warning');
+            }
+        }
 
-                try {
-                    const res = await fetch("{{ route('checkout') }}", {
-                        method: "POST",
-                        headers: {
-                            "Content-Type": "application/json",
-                            "X-CSRF-TOKEN": "{{ csrf_token() }}"
-                        },
-                        body: JSON.stringify({
-                            cart: payloadCart
-                        })
-                    });
+        // ✅ Add to cart
+        function addToCart(product, qty) {
+            qty = parseInt(qty) || 0;
+            if (qty <= 0) return;
 
-                    const data = await res.json();
+            const existing = window.cart.find(item => item.id === product.id);
+            if (existing) {
+                existing.qty += qty;
+            } else {
+                window.cart.push({ ...product, qty: qty });
+            }
+            renderCart();
+        }
 
-                    if (data.status === 'success') {
-                        window.cart = [];
-                        renderCart();
-                        window.location.href = "/invoice/" + data.sale_id;
-                    } else {
-                        swalWithDarkBtn.fire('❌ Error', data.message || 'Checkout failed', 'error');
-                    }
-                } catch (err) {
-                    console.error(err);
-                    swalWithDarkBtn.fire('❌ Error', 'Checkout failed', 'error');
+        // ✅ Render cart
+        function renderCart() {
+            cartBody.innerHTML = '';
+            let total = 0;
+
+            window.cart.forEach((item, idx) => {
+                const price = parseFloat(item.price_per_unit || item.price) || 0;
+                let qty = parseInt(item.qty) || 0;
+                let lineTotal = 0;
+                const unit = item.unit ? item.unit.toLowerCase() : '';
+
+                if (unit === 'kg' || unit === 'litre') {
+                    lineTotal = (qty / 1000) * price;
+                } else {
+                    lineTotal = qty * price;
                 }
+                total += lineTotal;
+
+                const row = `
+                    <tr>
+                      <td>${item.name}</td>
+                      <td>${item.barcode}</td>
+                      <td>Rs. ${price.toFixed(2)}</td>
+                      <td>
+                        <div class="d-flex align-items-center justify-content-center" style="gap:6px;">
+                          <button class="btn btn-sm dec-btn" data-idx="${idx}" 
+                                  style="width:40px; height:28px; background:gray; color:white;">–</button>
+                          <span class="qty-display fw-bold border rounded px-2 bg-light" 
+                                style="min-width:60px; text-align:center;">
+                            ${formatQty(qty, unit)}
+                          </span>
+                          <button class="btn btn-sm inc-btn" data-idx="${idx}" 
+                                  style="width:40px; height:28px; background:gray; color:white;">+</button>
+                        </div>
+                      </td>
+                      <td><span class="fw-bold text-success">Rs. ${lineTotal.toFixed(2)}</span></td>
+                      <td><button class="btn btn-sm btn-danger remove-btn" data-idx="${idx}">X</button></td>
+                    </tr>
+                `;
+                cartBody.insertAdjacentHTML('beforeend', row);
             });
+
+            grandTotalEl.innerHTML = `<strong class="text-success fs-5">Rs. ${total.toFixed(2)} /-</strong>`;
+            document.getElementById('cart-count').textContent =
+                window.cart.length + (window.cart.length === 1 ? " Item" : " Items");
+
+            // ✅ Increment
+            document.querySelectorAll('.inc-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    const idx = e.target.dataset.idx;
+                    window.cart[idx].qty += 1; // +1 gram/ml/piece
+                    renderCart();
+                });
+            });
+
+            // ✅ Decrement
+            document.querySelectorAll('.dec-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    const idx = e.target.dataset.idx;
+                    if (window.cart[idx].qty > 1) {
+                        window.cart[idx].qty -= 1; // -1 gram/ml/piece
+                    }
+                    renderCart();
+                });
+            });
+
+            // ✅ Remove
+            document.querySelectorAll('.remove-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    const idx = e.target.dataset.idx;
+                    window.cart.splice(idx, 1);
+                    renderCart();
+                });
+            });
+        }
+
+        // ✅ Barcode input
+        input.addEventListener('input', function () {
+            clearTimeout(typingTimer);
+            if (input.value.trim()) {
+                typingTimer = setTimeout(() => {
+                    fetchProduct(input.value.trim());
+                    input.value = '';
+                }, doneTypingInterval);
+            }
         });
-    </script>
+
+        // ✅ Search
+        searchInput.addEventListener('input', function () {
+            const query = this.value.trim();
+            if (query.length > 1) {
+                searchProducts(query);
+            } else {
+                searchResults.style.display = 'none';
+            }
+        });
+
+        async function searchProducts(query) {
+            try {
+                const res = await fetch("{{ route('products.search') }}?name=" + encodeURIComponent(query));
+                if (!res.ok) throw new Error('Search failed');
+                const products = await res.json();
+                renderSearchResults(products);
+            } catch (err) {
+                console.error(err);
+            }
+        }
+
+        function renderSearchResults(products) {
+            searchResults.innerHTML = '';
+            if (products.length === 0) {
+                searchResults.style.display = 'none';
+                return;
+            }
+            products.forEach(product => {
+                const item = document.createElement('div');
+                item.className = 'list-group-item list-group-item-action d-flex align-items-center';
+                item.style.cursor = 'pointer';
+                item.innerHTML = `
+                    <img src="${product.image}" alt="${product.name}" class="me-2 rounded"
+                         style="width:40px; height:40px; object-fit:cover;">
+                    <div>
+                      <div class="fw-bold">${product.name}</div>
+                      <small class="text-muted">Barcode: ${product.barcode}</small>
+                    </div>
+                `;
+                item.addEventListener('click', () => {
+                    handleProduct(product);
+                    searchResults.style.display = 'none';
+                    searchInput.value = '';
+                });
+                searchResults.appendChild(item);
+            });
+            searchResults.style.display = 'block';
+        }
+
+        // ✅ Checkout
+        document.getElementById('checkout-btn').addEventListener('click', async function () {
+            if (window.cart.length === 0) {
+                swalWithDarkBtn.fire('⚠ Empty', 'Cart is empty', 'warning');
+                return;
+            }
+
+            const payloadCart = window.cart.map(item => ({
+                id: item.id,
+                qty: parseInt(item.qty), // ✅ always in grams/ml/pieces
+                price: item.price_per_unit || item.price
+            }));
+
+            const confirm = await swalWithDarkBtn.fire({
+                title: 'Confirm Checkout?',
+                text: 'Are you sure you want to checkout?',
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonText: 'Yes, Checkout',
+                cancelButtonText: 'Cancel'
+            });
+
+            if (!confirm.isConfirmed) return;
+
+            try {
+                const res = await fetch("{{ route('checkout') }}", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "X-CSRF-TOKEN": "{{ csrf_token() }}"
+                    },
+                    body: JSON.stringify({ cart: payloadCart })
+                });
+
+                const data = await res.json();
+
+                if (data.status === 'success') {
+                    window.cart = [];
+                    renderCart();
+                    window.location.href = "/invoice/" + data.sale_id;
+                } else {
+                    swalWithDarkBtn.fire('❌ Error', data.message || 'Checkout failed', 'error');
+                }
+            } catch (err) {
+                console.error(err);
+                swalWithDarkBtn.fire('❌ Error', 'Checkout failed', 'error');
+            }
+        });
+    });
+</script>
 @endsection
+
