@@ -103,25 +103,22 @@
                             </div>
                             <select name="unit" class="form-control" required style="height: 47px; font-size: 15px;">
                                 <option value="">-- Select Unit --</option>
-                                <option value="piece">Piece</option>
-                                <option value="packet">Packet</option>
-                                <option value="dozen">Dozen</option>
-                                <option value="box">Box</option>
-                                <option value="set">Set</option>
-                                <option value="pair">Pair</option>
-                                <option value="roll">Roll</option>
-                                <option value="carton">Carton</option>
-                                <option value="kg">Kg</option>
-                                <option value="gram">Gram</option>
-                                <option value="litre">Litre</option>
-                                <option value="ml">Millilitre (ml)</option>
-                                <option value="meter">Meter</option>
-                                <option value="cm">Centimeter (cm)</option>
+                                <option value="piece" {{ old('unit', $product->unit) == 'piece' ? 'selected' : '' }}>Piece
+                                </option>
+                                <option value="packet" {{ old('unit', $product->unit) == 'packet' ? 'selected' : '' }}>
+                                    Packet</option>
+                                <option value="kg" {{ old('unit', $product->unit) == 'kg' ? 'selected' : '' }}>Kg
+                                </option>
+                                <option value="litre" {{ old('unit', $product->unit) == 'litre' ? 'selected' : '' }}>Litre
+                                </option>
                             </select>
+
                             <small class="text-secondary">
-                                Example: <b>Kg</b> for loose items (rice, sugar), <b>Litre</b> for liquids (milk, oil),
-                                <b>Piece/Packet</b> for packaged items, <b>Dozen</b> for eggs, <b>Meter</b> for cloth,
-                                <b>Pair</b> for shoes, <b>Roll</b> for tape, <b>Carton</b> for wholesale boxes.
+                                👉 For <b>Piece</b> and <b>Packet</b> → Enter stock as normal count (e.g., 50 pieces).<br>
+                                👉 For <b>Kg</b> → Always enter stock in <b>grams</b>. Example: <code>5000</code> = 5
+                                Kg.<br>
+                                👉 For <b>Litre</b> → Always enter stock in <b>millilitres</b>. Example: <code>2000</code> =
+                                2 Litres.
                             </small>
                         </fieldset>
 
